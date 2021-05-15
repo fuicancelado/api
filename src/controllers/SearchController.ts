@@ -8,9 +8,9 @@ class SearchController {
 
     const params: ICustomParams = { q: `${searchItem}`, exclude_replies: true, result_type: 'popular', count: 100 }
 
-    const result = await searchLoop('search/tweets', params)
+    const results = await searchLoop('search/tweets', params)
 
-    return res.json(result)
+    return res.json(results)
   }
 }
 

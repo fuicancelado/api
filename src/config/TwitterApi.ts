@@ -11,10 +11,11 @@ const TwitterAPI = new Twit({
   access_token_secret: ACCESS_TOKEN_SECRET,
 })
 
-interface IStatuses {
+export interface IStatuses {
   id_str: string
   created_at: string
-  text: string
+  full_text?: string
+  text?: string
   metadata: {
     iso_language_code: string
   }
@@ -23,10 +24,10 @@ interface IStatuses {
     screen_name: string
     profile_image_url: string
   }
-  urls: {
-    name: string
-    screen_name: string
-    profile_image_url: string
+  urls?: {
+    name?: string
+    screen_name?: string
+    profile_image_url?: string
   }[]
 }
 
@@ -54,49 +55,17 @@ export const search = (path: string, params?: ICustomParams): Promise<ISearchRes
   })
 }
 
-const calculateNumberOfRequests = ({ count }: ICustomParams): number[] => {
-  // default twitter api results per request
-  const MAX_RESULTS_PER_REQUEST = 15
+export const searchLoop = async (path: string, params: ICustomParams, recursiveResult: IStatuses[] = []): Promise<IStatuses[]> => {
+  const { search_metadata, statuses } = await search(path, params)
+  const { next_results } = search_metadata
 
-  const numberOfRequests = Math.ceil(count / MAX_RESULTS_PER_REQUEST) - 1
-  const arrayRequests = Array.from(Array(numberOfRequests).keys())
+  const totalResults = recursiveResult.concat(statuses)
 
-  return arrayRequests
-}
+  if (!next_results) return totalResults
 
-const loopUntilFinished = async (
-  firstRequestResult: ISearchResponse,
-  { path, params }: { path: string; params: ICustomParams },
-): Promise<IStatuses[]> => {
-  const { search_metadata, statuses } = firstRequestResult
+  const nextParams = queryStringToJson(next_results) as ICustomParams
 
-  const requestQuantity = calculateNumberOfRequests(params)
-
-  const { statuses: statusesResult } = await requestQuantity.reduce(async (acc, _) => {
-    const { search_metadata, statuses } = await acc
-    const { next_results } = search_metadata
-
-    if (!next_results) return acc
-
-    const paramsJSON = queryStringToJson(next_results)
-
-    const searchResult = await search(path, paramsJSON as ICustomParams)
-
-    const newStatuses = statuses.concat(searchResult.statuses)
-    const newMetadata = searchResult.search_metadata
-
-    return { search_metadata: newMetadata, statuses: newStatuses }
-  }, Promise.resolve({ search_metadata, statuses }))
-
-  const results = statusesResult.slice(0, params.count)
-
-  return results
-}
-
-export const searchLoop = async (path: string, params: ICustomParams): Promise<IStatuses[]> => {
-  const firstRequestResult = await search(path, params)
-
-  return loopUntilFinished(firstRequestResult, { params, path })
+  return searchLoop(path, nextParams, totalResults)
 }
 
 export default TwitterAPI
