@@ -24,11 +24,11 @@ export interface IStatuses {
     screen_name: string
     profile_image_url: string
   }
-  urls?: {
-    name?: string
-    screen_name?: string
-    profile_image_url?: string
-  }[]
+  entities: {
+    urls?: {
+      url?: string
+    }[]
+  }
 }
 
 interface ISearchMetadata {
@@ -43,6 +43,7 @@ export interface ISearchResponse {
 
 export interface ICustomParams extends Params {
   count: number
+  exclude: 'retweets' | 'replies'
 }
 
 export const search = (path: string, params?: ICustomParams): Promise<ISearchResponse> => {
@@ -61,7 +62,7 @@ export const searchLoop = async (path: string, params: ICustomParams, recursiveR
 
   const totalResults = recursiveResult.concat(statuses)
 
-  if (!next_results) return totalResults
+  if (!next_results || recursiveResult.length >= params.count) return totalResults.slice(0, params.count)
 
   const nextParams = queryStringToJson(next_results) as ICustomParams
 

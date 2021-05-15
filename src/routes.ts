@@ -8,6 +8,6 @@ const searchController = new SearchController()
 
 // Routes
 
-routes.get('/search', searchController.listSearch)
+routes.get('/search', searchController.listSearch.bind(searchController))
 
 export { routes }
