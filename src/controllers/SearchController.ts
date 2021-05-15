@@ -1,16 +1,16 @@
 import { Request, Response } from 'express'
 
-import { Twitter } from '../config/TwitConfiguration'
+import { searchLoop, ICustomParams } from '../config/TwitterApi'
 
 class SearchController {
-  async listSearch(request: Request, res: Response): Promise<void> {
-    const { searchItem, searchDate } = request.body
+  async listSearch(request: Request, res: Response): Promise<Response> {
+    const { searchItem } = request.query
 
-    Twitter.get('search/tweets', { q: `${searchItem} since:${searchDate}`, count: 2 }, (err, data, _) => {
-      const tweets = data
+    const params: ICustomParams = { q: `${searchItem}`, exclude_replies: true, result_type: 'popular', count: 100 }
 
-      return res.json(tweets)
-    })
+    const result = await searchLoop('search/tweets', params)
+
+    return res.json(result)
   }
 }
 
