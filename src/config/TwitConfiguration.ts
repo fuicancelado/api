@@ -1,17 +1,14 @@
-import Twit from 'twit';
+import 'dotenv/config'
 
-require('dotenv/config');
+import Twit from 'twit'
 
-const apikey = process.env.API_KEY;
-const apiSecretkey = process.env.API_KEY_SECRET;
-const accessToken = process.env.ACCESS_TOKEN;
-const accessTokenSecret = process.env.ACCESS_TOKEN_SECRET;
+const { API_KEY, API_KEY_SECRET, ACCESS_TOKEN, ACCESS_TOKEN_SECRET } = process.env
 
-const T = new Twit({
-  consumer_key: <string>apikey,
-  consumer_secret: <string>apiSecretkey,
-  access_token: accessToken,
-  access_token_secret: accessTokenSecret,
-});
+const Twitter = new Twit({
+  consumer_key: <string>API_KEY,
+  consumer_secret: <string>API_KEY_SECRET,
+  access_token: ACCESS_TOKEN,
+  access_token_secret: ACCESS_TOKEN_SECRET,
+})
 
-export { T };
+export { Twitter }

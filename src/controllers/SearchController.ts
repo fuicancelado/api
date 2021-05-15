@@ -1,21 +1,17 @@
-import { Request, Response } from 'express';
+import { Request, Response } from 'express'
 
-import { T } from '../config/TwitConfiguration';
+import { Twitter } from '../config/TwitConfiguration'
 
 class SearchController {
-  async listSearch(request: Request, res: Response) {
-    const { searchItem, searchDate } = request.body;
+  async listSearch(request: Request, res: Response): Promise<void> {
+    const { searchItem, searchDate } = request.body
 
-    T.get(
-      'search/tweets',
-      { q: `${searchItem} since:${searchDate}`, count: 2 },
-      (err, data, response) => {
-        const tweets = data;
+    Twitter.get('search/tweets', { q: `${searchItem} since:${searchDate}`, count: 2 }, (err, data, _) => {
+      const tweets = data
 
-        return res.json(tweets);
-      },
-    );
+      return res.json(tweets)
+    })
   }
 }
 
-export { SearchController };
+export { SearchController }
