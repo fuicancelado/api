@@ -3,7 +3,6 @@ import { Request, Response } from 'express'
 import { searchLoop, ICustomParams, IStatuses } from '../config/TwitterApi'
 
 export interface INeededFields {
-  phrase_id: string
   original_text: string
   type: 'tweet'
   language: string
@@ -13,6 +12,8 @@ export interface INeededFields {
     nickname: string
   }
   tweet: {
+    id: number
+    id_str: string
     url: string
     created_at: Date
   }
@@ -22,7 +23,8 @@ class SearchController {
   mapFields(results: IStatuses[]): INeededFields[] {
     return results.map(item => {
       const {
-        id_str: phrase_id,
+        id,
+        id_str,
         created_at,
         metadata: { iso_language_code: language },
         user: { name: user_name, profile_image_url: user_profile_image, screen_name: user_nickname },
@@ -38,11 +40,13 @@ class SearchController {
 
       const user = { name: user_name, profile_image: user_profile_image, nickname: user_nickname }
       const tweet = {
+        id,
+        id_str,
         url: tweet_url,
         created_at: new Date(created_at),
       }
 
-      return { phrase_id, original_text, type, language, user, tweet }
+      return { original_text, type, language, user, tweet }
     })
   }
 

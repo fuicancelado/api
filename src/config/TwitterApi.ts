@@ -12,6 +12,7 @@ const TwitterAPI = new Twit({
 })
 
 export interface IStatuses {
+  id: number
   id_str: string
   created_at: string
   full_text?: string
