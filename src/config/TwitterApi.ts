@@ -2,13 +2,13 @@ import Twit, { Params } from 'twit'
 
 import queryStringToJson from '../utils/queryStringToJson'
 
-const { API_KEY, API_KEY_SECRET, ACCESS_TOKEN, ACCESS_TOKEN_SECRET } = process.env
+const { TWITTER_API_KEY, TWITTER_API_KEY_SECRET, TWITTER_ACCESS_TOKEN, TWITTER_ACCESS_TOKEN_SECRET } = process.env
 
 const TwitterAPI = new Twit({
-  consumer_key: <string>API_KEY,
-  consumer_secret: <string>API_KEY_SECRET,
-  access_token: ACCESS_TOKEN,
-  access_token_secret: ACCESS_TOKEN_SECRET,
+  consumer_key: <string>TWITTER_API_KEY,
+  consumer_secret: <string>TWITTER_API_KEY_SECRET,
+  access_token: TWITTER_ACCESS_TOKEN,
+  access_token_secret: TWITTER_ACCESS_TOKEN_SECRET,
 })
 
 export interface IStatuses {
