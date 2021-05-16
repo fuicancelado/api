@@ -1,21 +1,69 @@
-import { Request, Response } from 'express';
+import { Request, Response } from 'express'
 
-import { T } from '../config/TwitConfiguration';
+import { searchLoop, ICustomParams, IStatuses } from '../config/TwitterApi'
 
-class SearchController {
-  async listSearch(request: Request, res: Response) {
-    const { searchItem, searchDate } = request.body;
-
-    T.get(
-      'search/tweets',
-      { q: `${searchItem} since:${searchDate}`, count: 2 },
-      (err, data, response) => {
-        const tweets = data;
-
-        return res.json(tweets);
-      },
-    );
+export interface INeededFields {
+  original_text: string
+  type: 'tweet'
+  language: string
+  user: {
+    name: string
+    profile_image: string
+    nickname: string
+  }
+  tweet: {
+    id: number
+    id_str: string
+    url: string
+    created_at: Date
   }
 }
 
-export { SearchController };
+class SearchController {
+  mapFields(results: IStatuses[]): INeededFields[] {
+    return results.map(item => {
+      const {
+        id,
+        id_str,
+        created_at,
+        metadata: { iso_language_code: language },
+        user: { name: user_name, profile_image_url: user_profile_image, screen_name: user_nickname },
+        full_text,
+        text,
+        entities: { urls },
+      } = item
+
+      const original_text = text || full_text || ''
+      const tweet_url = urls?.[0]?.url || ''
+
+      const type = 'tweet'
+
+      const user = { name: user_name, profile_image: user_profile_image, nickname: user_nickname }
+      const tweet = {
+        id,
+        id_str,
+        url: tweet_url,
+        created_at: new Date(created_at),
+      }
+
+      return { original_text, type, language, user, tweet }
+    })
+  }
+
+  async listSearch(request: Request, res: Response): Promise<Response> {
+    try {
+      const { searchItem } = request.query
+
+      const params: ICustomParams = { q: `${searchItem}`, exclude: 'retweets', result_type: 'mixed', count: 100 }
+      const results = await searchLoop('search/tweets', params)
+
+      const neededFields = this.mapFields(results)
+
+      return res.json(neededFields)
+    } catch (err) {
+      return res.status(400).json({ message: 'Something bad happened...' })
+    }
+  }
+}
+
+export { SearchController }

@@ -1,13 +1,13 @@
-import { Router } from 'express';
+import { Router } from 'express'
 
-import { SearchController } from './controllers/SearchController';
+import { SearchController } from './controllers/SearchController'
 
-const routes = Router();
+const routes = Router()
 
-const searchController = new SearchController();
+const searchController = new SearchController()
 
 // Routes
 
-routes.post('/search', searchController.listSearch);
+routes.get('/search', searchController.listSearch.bind(searchController))
 
-export { routes };
+export { routes }
