@@ -1,24 +1,8 @@
 import { searchLoop, ICustomParams, IStatuses } from '../config/TwitterApi'
-
-export interface INeededFields {
-  original_text: string
-  type: 'tweet'
-  language: string
-  user: {
-    name: string
-    profile_image: string
-    nickname: string
-  }
-  tweet: {
-    id: number
-    id_str: string
-    url: string
-    created_at: Date
-  }
-}
+import ISearchResult from '../models/ISearchResult'
 
 class SearchService {
-  mapFields(results: IStatuses[]): INeededFields[] {
+  mapFields(results: IStatuses[]): ISearchResult[] {
     return results.map(item => {
       const {
         id,
@@ -44,11 +28,13 @@ class SearchService {
         created_at: new Date(created_at),
       }
 
-      return { original_text, type, language, user, tweet }
+      return { id: id_str, original_text, text: original_text, type, language, user, tweet }
     })
   }
 
-  async listSearch(params: ICustomParams): Promise<INeededFields[]> {
+  async listSearch(searchItem: string): Promise<ISearchResult[]> {
+    const params: ICustomParams = { q: `${searchItem}`, exclude: 'retweets', result_type: 'mixed', count: 100, lang: 'pt' }
+
     const results = await searchLoop('search/tweets', params)
 
     return this.mapFields(results)

@@ -1,35 +1,33 @@
 import { Request, Response } from 'express'
 
-import { ICustomParams } from '../config/TwitterApi'
 import { EmotionAnalyzerService } from '../services/EmotionAnalyzerService'
 import { SearchService } from '../services/SearchService'
+import { TranslationService } from '../services/TranslationService'
 
 class SearchController {
   searchService: SearchService
 
   emotionAnalyzer: EmotionAnalyzerService
 
+  translationService: TranslationService
+
   constructor() {
     this.searchService = new SearchService()
     this.emotionAnalyzer = new EmotionAnalyzerService()
+    this.translationService = new TranslationService()
   }
 
   async listSearch(request: Request, res: Response): Promise<Response> {
     try {
       const { searchItem } = request.query
 
-      const params: ICustomParams = { q: `${searchItem}`, exclude: 'retweets', result_type: 'mixed', count: 100 }
+      const searchResult = await this.searchService.listSearch(searchItem as string)
+      const translationResult = await this.translationService.translate(searchResult)
+      // const analyzerResult = await this.emotionAnalyzer.analyze(translationResult)
 
-      const searchResult = await this.searchService.listSearch(params)
-
-      const phrases = searchResult.map(item => {
-        return item.original_text
-      })
-
-      const analyzeResult = await this.emotionAnalyzer.analyze(phrases)
-
-      return res.json(analyzeResult)
+      return res.json(translationResult)
     } catch (err) {
+      console.log(err)
       return res.status(400).json({ message: 'Something bad happened...' })
     }
   }
