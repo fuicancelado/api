@@ -8,7 +8,7 @@ enum Language {
 
 class TranslationService {
   async translate(search: ISearchResult[]): Promise<ISearchResult[]> {
-    const uglifiedSentences = uglifySentences(search, 'text')
+    const uglifiedSentences = uglifySentences(search)
     const mappedText = uglifiedSentences.map(item => item.text)
 
     const language = 'pt'

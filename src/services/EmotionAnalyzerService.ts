@@ -3,17 +3,14 @@ import ISearchResult from '../models/ISearchResult'
 
 class EmotionAnalyzerService {
   async analyze(searchResult: ISearchResult[]): Promise<unknown> {
-    const phrases = searchResult.map(item => {
-      return `${item.id}${item.text}`
-    })
-
+    const phrases = searchResult.map(item => item.text)
     const formattedPhrases = phrases.join('\n')
 
     const {
-      result: { sentences_tone },
+      result: { document_tone },
     } = await toneAnalyzer.tone({ toneInput: { text: formattedPhrases }, sentences: true })
 
-    return { sentences_tone }
+    return document_tone.tones
   }
 }
 

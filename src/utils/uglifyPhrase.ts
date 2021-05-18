@@ -12,19 +12,19 @@ const deUglifyPhrase = (id: string, phrase: string): string => {
   return phrase.replace(idString, '').replace(UGLIFYER_CHARACTER, '')
 }
 
-const uglifySentences = (sentences: ISearchResult[], property: string): ISearchResult[] => {
+const uglifySentences = (sentences: ISearchResult[]): ISearchResult[] => {
   return sentences.map(item => {
     const uglifiedSentence = uglifyPhrase(item.id, item.text)
 
-    return { ...item, [property]: uglifiedSentence }
+    return { ...item, text: uglifiedSentence }
   })
 }
 
 const deUglifySentences = (phrases: string[], sentences: ISearchResult[]): ISearchResult[] => {
   return sentences.map(item => {
     const decoder = `${item.id} ${UGLIFYER_CHARACTER} `
-    const encodedSentence = phrases.find(phrase => phrase.includes(decoder)) || ''
-    const decodedSentence = encodedSentence?.replace(decoder, '')
+    const encodedSentence = phrases.find(phrase => phrase.includes(decoder) || phrase.includes(`${item.id}${UGLIFYER_CHARACTER}`)) || ''
+    const decodedSentence = encodedSentence?.replace(decoder, '').replace(`${item.id}${UGLIFYER_CHARACTER}`, '')
 
     return { ...item, text: decodedSentence }
   })

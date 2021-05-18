@@ -23,9 +23,9 @@ class SearchController {
 
       const searchResult = await this.searchService.listSearch(searchItem as string)
       const translationResult = await this.translationService.translate(searchResult)
-      // const analyzerResult = await this.emotionAnalyzer.analyze(translationResult)
+      const tones = await this.emotionAnalyzer.analyze(translationResult)
 
-      return res.json(translationResult)
+      return res.json({ results: translationResult, tones })
     } catch (err) {
       console.log(err)
       return res.status(400).json({ message: 'Something bad happened...' })
