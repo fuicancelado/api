@@ -1,3 +1,5 @@
+import { v4 } from 'uuid'
+
 import { searchLoop, ICustomParams, IStatuses } from '../config/TwitterApi'
 import ISearchResult from '../models/ISearchResult'
 
@@ -28,7 +30,7 @@ class SearchService {
         created_at: new Date(created_at),
       }
 
-      return { id: id_str, original_text, text: original_text, type, language, user, tweet }
+      return { id: v4(), original_text, text: original_text, type, language, user, tweet }
     })
   }
 

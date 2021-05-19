@@ -1,27 +1,30 @@
 import { languageTranslator } from '../config/Translator'
 import ISearchResult from '../models/ISearchResult'
-import { uglifySentences, deUglifySentences } from '../utils/uglifyPhrase'
+import { addIdentificationToPhrase, removeIdentificationFromPhrase, findPhraseWithId, fixPhraseId } from '../utils/phraseIdentification'
+import removeNewline from '../utils/removeNewline'
 
 enum Language {
   English = 'en',
+  Portuguese = 'pt',
 }
 
 class TranslationService {
   async translate(search: ISearchResult[]): Promise<ISearchResult[]> {
-    const uglifiedSentences = uglifySentences(search)
-    const mappedText = uglifiedSentences.map(item => item.text)
-
-    const language = 'pt'
+    const phrasesWithIds = search.map(item => removeNewline(addIdentificationToPhrase(item.id, item.text)))
 
     const {
       result: { translations },
-    } = await languageTranslator.translate({ source: language, target: Language.English, text: mappedText })
+    } = await languageTranslator.translate({ source: Language.Portuguese, target: Language.English, text: phrasesWithIds })
 
-    const mappedTranslations = translations.map(translation => translation.translation)
+    const translatedPhrasesWithIds = translations.map(({ translation }) => fixPhraseId(translation))
 
-    const deUglifiedSentences = deUglifySentences(mappedTranslations, uglifiedSentences)
+    return search.map(item => {
+      const phraseWithId = findPhraseWithId(item.id, translatedPhrasesWithIds)
 
-    return deUglifiedSentences
+      const phrase = removeIdentificationFromPhrase(item.id, phraseWithId as string)
+
+      return { ...item, text: phrase }
+    })
   }
 }
 
