@@ -23,7 +23,7 @@ class CancelometerService {
       }, 0) / positiveTones.length
 
     return {
-      balance: negativeTonesAverage / positiveTonesAverage,
+      balance: (negativeTonesAverage * 100 || 1) / (positiveTonesAverage * 100 || 1),
     }
   }
 }
