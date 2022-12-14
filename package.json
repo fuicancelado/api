@@ -27,7 +27,7 @@
   "dependencies": {
     "cors": "^2.8.5",
     "dotenv": "^9.0.2",
-    "express": "^4.17.1",
+    "express": "^4.17.3",
     "ibm-watson": "^6.0.4",
     "twit": "^2.2.11",
     "uuid": "^8.3.2"
